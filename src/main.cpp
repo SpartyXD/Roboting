@@ -132,8 +132,8 @@ void handleConfig(String command){
 
   if(letter == 'M'){
     //Motor config
-    LEFT_SPEED = command.substring(1, split).toInt();
-    RIGHT_SPEED = command.substring(split+1).toInt();
+    LEFT_SPEED = constrain(command.substring(1, split).toInt(), 0, 255);
+    RIGHT_SPEED = constrain(command.substring(split+1).toInt(), 0, 255);
 
     data.putInt("L", LEFT_SPEED);
     data.putInt("R", RIGHT_SPEED);
