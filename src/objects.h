@@ -2,6 +2,7 @@
 #define MOTORS_H
 
 #include <misc.h>
+#include <Adafruit_NeoPixel.h>
 
 
 struct MotorShield{
@@ -57,6 +58,68 @@ struct MotorShield{
         digitalWrite(enable_pin, HIGH);
         setMotorSpeed(0, left_speed);
         setMotorSpeed(1, right_speed);
+    }
+
+};
+
+
+struct PixelRing{
+    int num_pixels = 0;
+    int pin = 0;
+    bool turned_on = false;
+    uint8_t current_color[3] = {0, 0, 0};
+
+    Adafruit_NeoPixel ring;
+
+    void _setPixel(int i, uint8_t r, uint8_t g, uint8_t b){
+        ring.setPixelColor(i, ring.Color(r, g, b));
+    }
+
+    PixelRing(){}
+
+    void init(int pixels, int pin, int r=0, int g=0, int b=0){
+        this->pin = pin;
+        num_pixels = pixels;
+        current_color[0] = r; current_color[1]= g; current_color[2] = b;
+
+        ring = Adafruit_NeoPixel(num_pixels, pin, NEO_GRB + NEO_KHZ800);
+        ring.begin();
+        setBrightness(255);
+        toggle();
+    }
+
+    void setBrightness(int brightness){
+        ring.setBrightness(brightness);
+    }
+
+    void setColor(uint8_t r, uint8_t g, uint8_t b){
+        //Turned off
+        if(r == 0 && g == 0 && b == 0){
+            turnOff();
+            return;
+        }
+
+        turned_on = true;
+        current_color[0] = r; current_color[1]= g; current_color[2] = b;
+        rep(i, num_pixels)
+            _setPixel(i, r, g, b);
+        
+        ring.show();
+    }
+
+    void turnOff(){
+        turned_on = false;
+        ring.clear();
+        ring.show();
+    }
+
+    void toggle(){
+        turned_on = !turned_on;
+
+        if(turned_on)
+            setColor(current_color[0], current_color[1], current_color[2]);
+        else
+            turnOff();
     }
 
 };

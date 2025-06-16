@@ -18,6 +18,7 @@
 #define B2_PIN 26
 
 //LEDS
+#define NUM_PIXELS 16
 #define FRONT_LED 18
 #define BACK_LED 5
 

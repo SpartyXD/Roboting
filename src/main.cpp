@@ -7,11 +7,14 @@
 MotorShield motors;
 BluetoothSerial server;
 Preferences data;
+PixelRing front_led, back_led;
 
-//CONSTANTS
+//VARIABLES
 #define NOMBRE_BLUETOOTH "RobotingUC"
 int LEFT_SPEED = 250;
 int RIGHT_SPEED = 250;
+int FRONT_COLOR[3] = {255, 0, 0};
+int BACK_COLOR[3] = {0, 0, 255};
 
 //Bluetooth stop
 #define CONECTION_DELAY 1000
@@ -37,6 +40,8 @@ void setup(){
   delay(500);
 
   motors.init(STNDBY_PIN, PWM_A, A1_PIN, A2_PIN, PWM_B, B1_PIN, B2_PIN);
+  front_led.init(NUM_PIXELS, FRONT_LED, 255, 0, 0);
+  back_led.init(NUM_PIXELS, BACK_LED, 0, 0, 255);
 
   LEFT_SPEED = data.getInt("L", 250);
   RIGHT_SPEED = data.getInt("R", 250);
@@ -61,7 +66,8 @@ void loop(){
 //Implementations
 
 void handleCommand(String command){
-  if(command.length() > 1){
+  //Config
+  if(command.length() > 2 && (command[1] >= '0' && command[1] <= '9')){
     handleConfig(command);
     return;
   }
@@ -120,16 +126,47 @@ void spin(){
 
 
 void handleConfig(String command){
+  command.trim();
   char letter = command[0];
   int split = command.indexOf(" ");
 
   if(letter == 'M'){
+    //Motor config
     LEFT_SPEED = command.substring(1, split).toInt();
     RIGHT_SPEED = command.substring(split+1).toInt();
 
     data.putInt("L", LEFT_SPEED);
     data.putInt("R", RIGHT_SPEED);
 
-    Serial.println("Received motor speeds: " + String(LEFT_SPEED) + " " + String(RIGHT_SPEED));
+    Serial.println("Set motor speeds: " + String(LEFT_SPEED) + " " + String(RIGHT_SPEED));
   }
+
+  if(letter == 'F' || letter == 'B'){
+    // Light config
+    command = command.substring(1);
+    
+    int vals[3] = {0, 0, 0};
+    rep(i, 3){
+      split = command.indexOf(" ");
+      String valStr;
+
+      if(split == -1){
+        valStr = command; // último valor
+      } else {
+        valStr = command.substring(0, split);
+        command = command.substring(split + 1);
+      }
+
+      vals[i] = constrain(valStr.toInt(), 0, 255);
+    }
+
+    if(letter == 'F')
+      front_led.setColor(vals[0], vals[1], vals[2]);
+    else
+      back_led.setColor(vals[0], vals[1], vals[2]);
+    
+    Serial.println("Set LED {" + String(letter) + "} -> " + String(vals[0]) + ", " + String(vals[1]) + ", " + String(vals[2]));
+  }
+
+  
 }
