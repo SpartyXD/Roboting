@@ -19,8 +19,8 @@
 
 //LEDS
 #define NUM_PIXELS 16
-#define FRONT_LED 18
-#define BACK_LED 5
+#define FRONT_LED 5
+#define BACK_LED 18
 
 //=====================================
 //MACROS / PARAMETERS / AUX FUNCTIONS

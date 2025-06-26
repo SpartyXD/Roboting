@@ -52,6 +52,7 @@ void setup(){
 
 void loop(){
   time_now = get_time();
+  // front_led.setColor(255, 0, 0);
 
   while(server.available()){
     last_check = time_now;
